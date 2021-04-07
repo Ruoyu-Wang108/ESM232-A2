@@ -1,0 +1,38 @@
+---
+title: "ESM232 A2 function application"
+author: "Margaret Brickner, Nathalie Eegholm, Ruoyu Wang"
+date: "4/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+source("R/almond_yield_anomaly.R")
+```
+
+```{r}
+clim <- read.table("clim.txt")
+
+precip <- clim %>% 
+  filter(month == 1)
+
+jan_precip_sum <- precip %>% 
+  group_by(year) %>% 
+  summarize(
+    jan_precip_sum = sum(precip)
+  )
+
+temp <- clim %>% 
+  filter(month == 2)
+
+feb_temp_min <- temp %>% 
+  group_by(year) %>%
+  summarize(
+    feb_tmin = min(tmin_c)
+  )
+
+```
+
