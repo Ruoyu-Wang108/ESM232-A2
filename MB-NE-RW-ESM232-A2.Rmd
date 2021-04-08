@@ -43,12 +43,7 @@ yieldanoms<- NaN*(yset) #generate empty holding vector to store yield anomalies 
 for(j in 1:length(yieldanoms)){ #loop through years
 
   yieldanoms[j]<-almond_yield_anomaly(feb_temp_min[j,2],
-                         jan_precip_sum[j,2],
-                         var_feb_min_t_1 = -0.015,
-                         var_feb_min_t_2 = -0.0046,
-                         var_jan_precip_1 = -0.07,
-                         var_jan_precip_2 = 0.0043,
-                         intercept = 0.28)
+                         jan_precip_sum[j,2])
                          
                          }
                          
