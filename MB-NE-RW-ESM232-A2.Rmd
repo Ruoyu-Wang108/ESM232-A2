@@ -55,5 +55,21 @@ for(j in 1:length(yieldanoms)){ #loop through years
 # simple plot of yield anomaly vs year, what other ways can we present the data?                         
 plot(x=yset,y=yieldanoms, xlab="year", ylab="yield anomaly (tons/acre)",type = 'l', las = 1, lwd = 2, main = "Almond Yield Anomaly, Lobell et al., 2006")
 
+
+#set of subplots to show precip and temp data along with yield anomaly. Not sure about how to best change margins/positions of plots
+par(mfrow=c(2,1))#,mai = c(1, 1, 0.2, 1))#,oma = c(1, 1, 3, 1)) 
+
+plot(x=yset,y=yieldanoms, xlab="Year", ylab="yield anomaly (tons/acre)",ylim=c(0,2000),type = 'l', las = 1, lwd = 2, cex.lab=0.6, cex.axis=0.75,main = "Almond Yield Anomaly,Lobell et al., 2006")
+
+plot(x=yset,y=jan_precip_sum$jan_precip_sum, type ="l", ylab = "Precipitation (mm)",ylim=c(0,900),xlab = "Year",col = "blue", cex.lab=0.6, cex.axis=0.8)
+par(new = TRUE)
+plot(x=yset,y=feb_temp_min$feb_tmin, type = "l", xaxt = "n", yaxt = "n",ylab = "", xlab = "", col = "red", lty = 2, ylim=c(0,10), cex.lab=0.6)
+axis(side = 4)
+mtext("Temperature (C)", side = 4, line = 3, cex=0.6)
+legend(x = 2000, y = 10, 
+       lwd = 2,lty=c(1,2),
+       legend = c('January Precipitation','Minimum February Temperature'),
+       col = c("blue","red"), cex=0.3, bty = "n")
+
 ```
 
