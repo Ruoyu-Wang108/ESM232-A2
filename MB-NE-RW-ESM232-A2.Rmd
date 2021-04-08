@@ -36,13 +36,13 @@ feb_temp_min <- temp %>%
   
 #I added this code to calculate yield anomaly for each year. In my R script I called and filtered the data a bit differently, so can you make sure that this will get the right output in terms of calling the right columns, etc.? -Nathalie  
 
-yset <- seq(from = unique(jan_precip_sum[1,1], to = tail(jan_precip_sum[,1],n=1),length.out = length(unique(jan_precip_sum[,1]))) #create a vector of years
-
+yset <- jan_precip_sum$year
+  
 yieldanoms<- NaN*(yset) #generate empty holding vector to store yield anomalies for each year
 
 for(j in 1:length(yieldanoms)){ #loop through years
 
-  yieldanoms[j]<-almond_yield_anomaly(feb_tmin[j,2],
+  yieldanoms[j]<-almond_yield_anomaly(feb_temp_min[j,2],
                          jan_precip_sum[j,2],
                          var_feb_min_t_1 = -0.015,
                          var_feb_min_t_2 = -0.0046,
@@ -52,7 +52,7 @@ for(j in 1:length(yieldanoms)){ #loop through years
                          
                          }
                          
-                         
+# simple plot of yield anomaly vs year, what other ways can we present the data?                         
 plot(x=yset,y=yieldanoms, xlab="year", ylab="yield anomaly (tons/acre)",type = 'l', las = 1, lwd = 2, main = "Almond Yield Anomaly, Lobell et al., 2006")
 
 ```
