@@ -100,7 +100,7 @@ ggplot() +
 #par(mfrow=c(2,1))#,mai = c(1, 1, 0.2, 1))#,oma = c(1, 1, 3, 1)) 
 #plot(x=yset,y=yieldanoms, xlab="Year", ylab="Yield anomaly (tons/acre)",ylim=c(0,2000),type = 'l', las = 1, lwd = 2, cex.lab=0.6, cex.axis=0.75,main = "California Almond Yield Anomalies (1989-2010)",sub = "Modeled using the almond yield anomoly function developed by Lobell et al., 2006")
 ```
-***Figure 1.*** *California alomd yield anomalies from 1989-2010 modeled using the function developed by Lobell et al., 2006.* 
+***Figure 1.*** *California almond yield anomalies from 1989-2010 modeled using the function developed by Lobell et al., 2006.* 
  
 ```{r}
 
@@ -138,17 +138,9 @@ ggplot() +
         panel.grid.major.x = element_blank())
 
 
-#plot(x=yset,y=jan_precip_sum$jan_precip_sum, type ="l", ylab = "Precipitation (mm)",ylim=c(0,900),xlab = "Year",col = "blue", cex.lab=0.6, cex.axis=0.8)
-#par(new = TRUE)
-#plot(x=yset,y=feb_temp_min$feb_tmin, type = "l", xaxt = "n", yaxt = "n",ylab = "", xlab = "", col = "red", lty = 2, ylim=c(0,10), cex.lab=0.6)
-#axis(side = 4)
-#mtext("Temperature (C)", side = 4, line = 3, cex=0.6)
-#legend(x = 2000, y = 10, 
-       #lwd = 2,lty=c(1,2),
-       #legend = c('January Precipitation','Minimum February Temperature'),
-       #col = c("blue","red"), cex=0.3, bty = "n")
+
 ```
-***Figure 2.*** *The minimum observed temperature in February 1989-2010* 
+***Figure 3.*** *The minimum observed temperature in February 1989-2010* 
 
 ***Observations***
-Using the function developed by Lobell et al. to model historical almond yield anomolies reveals two important trends. First, January rainfails seem to be the strongest predictor for almond yields. In years where there was more than 200mm of rain the January before harvest there was an increase in yield. This is especially apparent in the 1995, 2005, and 2008 harvests. Second, as outlined in the function, lower February minimum temperatures have a negative impact on yields. Throughout the years examined in this application of the function cold temperatures only twice coincided with low January rainfalls enough to result in a negative yield anomoly (a yield below the 23-year average that the function was developed around). This occured in 2003 and 2004 and both times resulted in less than 0.1 tons/acre of yield loss. Since Lobell et al.last tested the function against 2003 data, it would be interesting to see if the function continues to accurately reflect as rainfall and temperature patterns continue to shift in as a result of climate change. 
+Using the function developed by Lobell et al. to model historical almond yield anomalies reveals two important trends. First, January rainfalls seem to be the strongest predictor for almond yields. In years where there was more than 200mm of rain the January before harvest, there was an increase in yield. This is especially apparent in the 1995, 2005, and 2008 harvests. Second, as outlined in the function, lower February minimum temperatures have a negative impact on yields. Throughout the years examined in this application of the function, cold temperatures only twice coincided with low January rainfalls enough to result in a negative yield anomaly (a yield below the 23-year average that the function was developed around). This occurred in 2003 and 2004 and both times resulted in less than 0.1 tons/acre of yield loss. Since Lobell et al.last tested the function against 2003 data, it would be interesting to see if the function continues to accurately reflect as rainfall and temperature patterns continue to shift as a result of climate change. 
