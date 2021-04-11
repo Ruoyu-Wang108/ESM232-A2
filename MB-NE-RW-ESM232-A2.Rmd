@@ -99,10 +99,11 @@ yieldanoms_df<- data.frame(yset, yieldanoms_vector) %>%
 
 ### 4. Result plots
 
+For simplicity, we will not include the codes related to plot and table generation in the final report. All data used in Section 4 came from `yieldanoms_df`. Feel free to access to our full Rmd codes [here](https://github.com/Ruoyu-Wang108/ESM232-A2/blob/main/MB-NE-RW-ESM232-A2.Rmd).
+
 #### 4.1 The historic yield anomalies
 
-
-First we wanted to plot the historic yield anomalies as output by the Lobell et al. function.
+First we wanted to plot the historic yield anomalies as output by the Lobell et al. function. 
 
 ```{r yield.plot, fig.align="left", echo=FALSE, fig.height=4,fig.width=6}
 ggplot() + 
@@ -187,6 +188,8 @@ Using the function developed by Lobell et al. to model historical almond yield a
 Lobell, D.B., Field, C.B., Nicholas Cahill, K., Bonfils, C. (2006). Impacts of future climate change on California perennial crop yields: Model projections with climate and crop uncertainties. Agric, 141(2): 208-218.
 
 ### 5. Appendix - Result table
+
+All data in this table came from `yieldanoms_df`.
 
 ```{r result.table, echo=FALSE}
 yieldanoms_df %>% 
