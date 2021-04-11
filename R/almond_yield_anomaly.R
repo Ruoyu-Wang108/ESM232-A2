@@ -1,4 +1,4 @@
-#' Almond Yield
+#' Almond Yield Anomaly
 #'
 #' @description
 #' This function calculates the anomaly Almond yield based on minimum temperature in February and total precipitation in January.
@@ -13,7 +13,7 @@
 #' @param var_jan_precip_2 The coefficient associated with jan_precip square. Default: 0.0043
 #' @param intercept The intercept of this statistic model. Default: 0.28
 #'
-#' @return Almond yield anomaly. Unit: ton/acre.
+#' @return Annual Almond yield anomaly. Unit: ton/acre.
 #'
 #' @references Lobell et al., 2006
 #' @examples almond_yield_anomaly(3, 5)
@@ -30,6 +30,5 @@ almond_yield_anomaly <- function(feb_min_t,
   yield = var_feb_min_t_1 * feb_min_t + var_feb_min_t_2 * feb_min_t^2 + var_jan_precip_1 *  jan_precip + var_jan_precip_2 * jan_precip^2 + intercept
 
   return(yield)
-
 
 }

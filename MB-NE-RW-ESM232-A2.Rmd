@@ -3,26 +3,39 @@ title: "ESM232 A2 function application"
 author: "Margaret Brickner, Nathalie Eegholm, Ruoyu Wang"
 date: "4/7/2021"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
 
 library(tidyverse)
+library(gt)
+```
 
-#This is our function which models annual yield anomolies based research conducted by Lobell et al., 2006. More details, including variables and parameters, are in the R script.
+### 1. The function
+
+```{r function}
+#This is our function which models annual yield anomalies based research conducted by Lobell et al., 2006. More details, including variables and parameters, are in the R script.
 source("R/almond_yield_anomaly.R")
 ```
 
-```{r}
-# This subsetting process requires the following column formatting:
-# 1. variable "month" with values January-December indicated as 1-12
-# 2. variable "year"
-# 3. variable "precip" with values of precipitation in mm
-# 4. variable "temp" with values for of temperature in degrees C
+### 2. Data wrangling
 
+**This subsetting process requires the following column formatting:**
+
+1) variable "month" with values January-December indicated as 1-12
+
+2) variable "year"
+
+3) variable "precip" with values of precipitation in mm
+
+4) variable "temp" with values for of temperature in degrees C
+
+```{r data}
 # Read in climate data.
 clim <- read.table("clim.txt")
 
@@ -43,15 +56,19 @@ jan_precip_sum <- precip %>%
 temp <- clim %>% 
   filter(month == 2)
 
-# Then, group by year and find the minimum value each year. 
+# Then, group by year and find the average value each year. 
 feb_temp_min <- temp %>% 
   group_by(year) %>%
   summarize(
-    feb_tmin = min(tmin_c)
+    feb_tmin = mean(tmin_c)
   )
+```
 
+### 3. Function application
+
+```{r apply}
 # Data subsetting is complete. 
-# Now time to generate our outputs (annual yield anomoly in ton/acre). 
+# Now time to generate our outputs (annual yield anomaly in ton/acre). 
 
 # Generate vector of years
 yset <- jan_precip_sum$year
@@ -59,7 +76,7 @@ yset <- jan_precip_sum$year
 # Generate empty holding list to store yield anomalies for each year using yset vector generated. 
 yieldanoms<- NaN*(yset) 
 
-# Loop through years and store yield anomoly outputs in yieldanoms vector.
+# Loop through years and store yield anomaly outputs in yieldanoms vector.
 for(j in 1:length(yieldanoms)){ 
   yieldanoms[j]<-almond_yield_anomaly(feb_temp_min[j,2],
                          jan_precip_sum[j,2])
@@ -68,47 +85,59 @@ for(j in 1:length(yieldanoms)){
 #Next convert the results to a df to use ggplot. First list to a vector.  
 yieldanoms_vector <- unlist(yieldanoms)
 
-#There's probably a simpler way to do this, but next to a df. 
+#Next to a dataframe. 
 yieldanoms_df<- data.frame(yset, yieldanoms_vector) %>% 
   rename(year = yset, 
-         yield_anomoly = yieldanoms_vector) %>% 
+         yield_anomaly = yieldanoms_vector) %>% 
   merge(feb_temp_min, by = "year") %>% 
   merge(jan_precip_sum, by = "year") %>% 
   rename(jan_precip = jan_precip_sum)
+```
 
 
-# Next to plot. 
-# First we wanted to plot the historic yield anomolies as output by the Lobell et al. function. What other ways can we present the data?  
 
+
+### 4. Result plots
+
+#### 4.1 The historic yield anomalies
+
+
+First we wanted to plot the historic yield anomalies as output by the Lobell et al. function.
+
+```{r yield.plot, fig.align="left", echo=FALSE, fig.height=4,fig.width=6}
 ggplot() + 
-  geom_line(data = yieldanoms_df, aes(x = year, y = yield_anomoly)) + 
+  geom_line(data = yieldanoms_df, 
+            aes(x = year, y = yield_anomaly),
+            size = 1,
+            color = "#FFC77D") + 
   theme_bw() + 
   labs(title = "California Almond Yield Anomalies (1989-2010)", 
        subtitle = "As modeled by Lobell et al., 2006", 
-       x = "Year", y = "Yield anomoly (tons/acre)") + 
-  scale_y_continuous(expand = c(0.01,0.1)) +
+       x = "Year", y = "Yield anomaly (tons/acre)") + 
+  scale_y_continuous(expand = c(0.01,0.1),
+                     limits = c(-0.5, 1930),
+                     breaks = c(0,300,600,900,1200,1500,1800)) +
   scale_x_continuous(expand = c(0,0.2)) + 
   theme(axis.line = element_line(color = "dimgrey"), 
         panel.border = element_rect(fill = NA, color = NA),
         panel.grid.minor.y = element_blank(), 
         panel.grid.minor.x = element_blank(), 
         panel.grid.major.x = element_blank())
-
-# plot(x=yset,y=yieldanoms, xlab="year", ylab="yield anomaly (tons/acre)",type = 'l', las = 1, lwd = 2, main = "Almond Yield Anomaly, Lobell et al., 2006")
-
-#set of subplots to show precip and temp data along with yield anomaly. Not sure about how to best change margins/positions of plots
-#par(mfrow=c(2,1))#,mai = c(1, 1, 0.2, 1))#,oma = c(1, 1, 3, 1)) 
-#plot(x=yset,y=yieldanoms, xlab="Year", ylab="Yield anomaly (tons/acre)",ylim=c(0,2000),type = 'l', las = 1, lwd = 2, cex.lab=0.6, cex.axis=0.75,main = "California Almond Yield Anomalies (1989-2010)",sub = "Modeled using the almond yield anomoly function developed by Lobell et al., 2006")
 ```
-***Figure 1.*** *California almond yield anomalies from 1989-2010 modeled using the function developed by Lobell et al., 2006.* 
- 
-```{r}
 
 
+***Figure 1.*** *California almond yield anomalies from 1989-2010 modeled using the statistical model developed by Lobell et al., 2006.* 
 
-# Next to plot the precipitation. 
+#### 4.2 The precipitation trend
+
+Next to plot the precipitation.
+
+```{r prep.plot, fig.align="left", echo=FALSE, fig.height=4,fig.width=6}
 ggplot() + 
-  geom_line(data = yieldanoms_df, aes(x = year, y = jan_precip), color = "blue") + 
+  geom_line(data = yieldanoms_df, 
+            aes(x = year, y = jan_precip), 
+            color = "blue",
+            size = 1) + 
   theme_bw() + 
   labs(title = "California Total January Rainfall (1989-2010)",
        x = "Year", y = "Rainfall (mm)") + 
@@ -118,32 +147,61 @@ ggplot() +
         panel.border = element_rect(fill = NA, color = NA),
         panel.grid.minor.x = element_blank(), 
         panel.grid.major.x = element_blank())
-
-
-
 ```
+
+
 ***Figure 2.*** *The sum of total precipitation in January 1989-2010* 
-```{r}
+
+
+#### 4.3 The temperature trend
+
+
+```{r temp.plot, fig.align="left", echo=FALSE, fig.height=4,fig.width=6}
 # and temperature
 ggplot() + 
-  geom_line(data = yieldanoms_df, aes(x = year, y = feb_tmin), color = "red", linetype = "dashed") + 
+  geom_line(data = yieldanoms_df, 
+            aes(x = year, y = feb_tmin), 
+            color = "red", 
+            linetype = "dashed",
+            size = 1) + 
   theme_bw() + 
   labs(title = "California Minimum February Temperature (1989-2010)",
-       x = "Year", y = "Temperature (degrees C)") + 
+       x = "Year", y = "Temperature (Celcius)") + 
   scale_y_continuous(expand = c(0.01,0.1)) +
   scale_x_continuous(expand = c(0,0.2)) + 
   theme(axis.line = element_line(color = "dimgrey"), 
         panel.border = element_rect(fill = NA, color = NA),
         panel.grid.minor.x = element_blank(), 
         panel.grid.major.x = element_blank())
-
-
-
 ```
-***Figure 3.*** *The minimum observed temperature in February 1989-2010* 
 
-***Observations***
+***Figure 3.*** *The average of minimum observed temperatures in February 1989-2010* 
+
+#### 4.4 Observations
+
+
 Using the function developed by Lobell et al. to model historical almond yield anomalies reveals two important trends. First, January rainfalls seem to be the strongest predictor for almond yields, even though this crop is irrigated and therefore yield anomaly projections determined in Lobell et al. were not as impacted by the uncertainty in precipitation projections. In years where there was more than 200mm of rain the January before harvest, there was an increase in yield (Figs. 1, 2). This is especially apparent in the 1995, 2005, and 2008 harvests. Second, as outlined in the function, lower February minimum temperatures have a negative impact on yields. Throughout the years examined in this application of the function, cold temperatures only twice coincided with low January rainfalls enough to result in a negative yield anomaly (a yield below the 23-year average that the function was developed around). This occurred in 2003 and 2004 and both times resulted in less than 0.1 tons/acre of yield loss (Figs. 1, 3). Since Lobell et al. last tested the function against 2003 data, it would be interesting to see if the function continues to accurately reflect yield anomalies as rainfall and temperature patterns continue to shift as a result of climate change. 
 
-Citation: 
-Lobell, D.B., Field, C.B., Nicholas Cahill, K., Bonfils, C. (2006). Impacts of future climate change on California perennial crop yields: Model projections with climate and crop uncertainties. _Agric, 141(2): 208-218.__
+**Citation: **
+
+Lobell, D.B., Field, C.B., Nicholas Cahill, K., Bonfils, C. (2006). Impacts of future climate change on California perennial crop yields: Model projections with climate and crop uncertainties. Agric, 141(2): 208-218.
+
+### 5. Appendix - Result table
+
+```{r result.table, echo=FALSE}
+yieldanoms_df %>% 
+  gt() %>% 
+  tab_header(
+    title = "Almond yield anormalies (outputs) and inputs used in model"
+  ) %>% 
+  fmt_number(columns = c("yield_anomaly","feb_tmin","jan_precip"),
+             decimals = 2) %>%
+  cols_label(
+    year = "Year",
+    yield_anomaly = html("Yield Anomaly<br> (tons/acre)"),
+    feb_tmin = html("Mean Minimum Temperature<br> in February (Celcius)"),
+    jan_precip = html("Total Precipitation<br> in January (mm)")
+  ) %>% 
+  cols_align(align = "center",
+             columns = everything())
+```
