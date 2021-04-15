@@ -68,7 +68,10 @@ YA_SA_df<- data.frame(yset, SAvec) %>%
 #add column to dataframe with the values of P^2 term coefficients used 
 YA_SA_df$P2coeff=rep(var_jan_precip_2, length.out=lengths(YA_SA_df[1]), each=length(yset))
 
-
+#plot results in a boxplot
+ggplot(YA_SA_df, aes(x=year, y=yield_anomaly, group=year))+geom_boxplot()+labs(title = "California Almond Yield Anomalies (1989-2010)", 
+       subtitle = "Sensitivity Analysis on Parameter 0.0043P^2", 
+       x = "Year", y = "Yield Anomaly (tons/acre)") 
 
 
 
