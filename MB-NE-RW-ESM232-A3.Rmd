@@ -11,15 +11,74 @@ knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE)
 
 library(tidyverse)
-# library(purrr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)
 
 source("R/almond_yield_anomaly.R")
+
+clim <- read.table("clim.txt")
+
+#generate sums of January precipitation
+precip <- clim %>% 
+  filter(month == 1)
+
+jan_precip_sum <- precip %>% 
+  group_by(year) %>% 
+  summarize(
+    jan_precip_sum = sum(precip)
+  )
+
+#generate February minimum temperatures
+temp <- clim %>% 
+  filter(month == 2)
+
+feb_temp_min <- temp %>% 
+  group_by(year) %>%
+  summarize(
+    feb_tmin = min(tmin_c)
+  )
+
+
+
+```
+
+```{r sensitivity analysis}
+
+var_jan_precip_2= rnorm(mean=0.0043, sd = 0.001, n=500) 
+
+
+sens_analysis = var_jan_precip_2 %>% map(~almond_yield_anomaly( feb_temp_min[,2],jan_precip_sum[,2], var_feb_min_t_1=-0.015,var_feb_min_t_2 = -0.0046, var_jan_precip_1 = -0.07, var_jan_precip_2 = .x, intercept = 0.28))
+
+
+#rename list header
+for (j in 1:length(sens_analysis)){ 
+  names(sens_analysis[[j]])<-c("Yield Anomaly (tons/acre)")
+  
+  
+  
+}
+
 ```
 
 ```{r}
-# not working
-var_jan_precip_2= rnorm(mean=0.0043, sd = 0.001, n=500) 
 
-sens_analysis = var_jan_precip_2 %>% map(~almond_yield_anomaly( feb_min_t,jan_precip, var_feb_min_t_1=-0.015,var_feb_min_t_2 = -0.0046, var_jan_precip_1 = -0.07, var_jan_precip_2 = .x, intercept = 0.28))
+# create dataframe of sensitivity analysis data
+SAdf=as.data.frame(sens_analysis) %>% pivot_longer(everything(),names_to="Year", values_to="YA")
+
+#create column for years
+SAdf$Year=rep(yset, length(var_jan_precip_2))
+
+#create new column for the coefficient used for the P^2 term
+SAdf$P2coeff=rep(var_jan_precip_2, length.out=lengths(SAdf[1]), each=length(yset))
+
+#reorder columns of dataframe
+SAdf <- SAdf[c("P2coeff", "Year", "YA")]
+
+
+
+
+
 ```
 
