@@ -68,6 +68,7 @@ for (j in 1:length(sens_analysis)){
 SAdf=as.data.frame(sens_analysis) %>% pivot_longer(everything(),names_to="Year", values_to="YA")
 
 #create column for years
+yset <- jan_precip_sum$year
 SAdf$Year=rep(yset, length(var_jan_precip_2))
 
 #create new column for the coefficient used for the P^2 term
