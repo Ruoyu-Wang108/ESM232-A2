@@ -1,26 +1,27 @@
 ---
-title: "Assignment3"
-author: "Ruoyu Wang"
+title: "ESM232 Assignment 3"
+author: "Margaret Brickner, Nathalie Eegholm, Ruoyu Wang"
 date: "4/14/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
+knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE)
 
 library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
 library(purrr)
 
 source("R/almond_yield_anomaly.R")
 
+```
+
+```{r clim.data}
+# read in the climate data from Assignment2
 clim <- read.table("clim.txt")
 
-#generate sums of January precipitation
+# First, find the annual January rainfall totals.
 precip <- clim %>% 
   filter(month == 1)
 
@@ -30,52 +31,53 @@ jan_precip_sum <- precip %>%
     jan_precip_sum = sum(precip)
   )
 
-#generate February minimum temperatures
+# Then find the average Feburary minimium temperature in each year.  
 temp <- clim %>% 
   filter(month == 2)
 
+ 
 feb_temp_min <- temp %>% 
   group_by(year) %>%
   summarize(
-    feb_tmin = min(tmin_c)
+    feb_tmin = mean(tmin_c)
   )
-
-
-
 ```
 
-```{r sensitivity analysis}
 
+```{r clean.data}
+# create dataset for easier use in the sensitivity analysis
+clim_clean <- inner_join(jan_precip_sum, feb_temp_min, by = "year")
+```
+
+
+```{r sensitivity.analysis}
+# the parameter follows the normal distribution
 var_jan_precip_2= rnorm(mean=0.0043, sd = 0.001, n=500) 
 
+# use map_dfc to store the results in a dataframe
+sens_analysis <-  var_jan_precip_2 %>% 
+  map_dfc(~almond_yield_anomaly(feb_min_t = clim_clean$feb_tmin,
+                            jan_precip = clim_clean$jan_precip_sum,
+                            var_jan_precip_2 = .x)) 
 
-sens_analysis = var_jan_precip_2 %>% map(~almond_yield_anomaly( feb_temp_min[,2],jan_precip_sum[,2], var_feb_min_t_1=-0.015,var_feb_min_t_2 = -0.0046, var_jan_precip_1 = -0.07, var_jan_precip_2 = .x, intercept = 0.28))
+# rename the columns for simplicity
+colnames(sens_analysis) = c(1:500)
 
+# change the table to the long format so that we can plot it with ggplot
+sens_analysis.long <- sens_analysis %>%
+  mutate(year = c(1989:2010)) %>% 
+  pivot_longer(c(1:500), values_to="yield")
 
-
-#unlist sens_analysis and convert to vector
-SAvec<-unlist(sens_analysis)
-
-#create vector of unique years for which there is data
-yset<- jan_precip_sum$year 
-
-
-#put results into Yield Anomaly Sensitivity Analysis dataframe
-YA_SA_df<- data.frame(yset, SAvec) %>% 
-  rename(year = yset, 
-         yield_anomaly = SAvec) 
-
-#add column to dataframe with the values of P^2 term coefficients used 
-YA_SA_df$P2coeff=rep(var_jan_precip_2, length.out=lengths(YA_SA_df[1]), each=length(yset))
-
-#plot results in a boxplot
-ggplot(YA_SA_df, aes(x=year, y=yield_anomaly, group=year))+geom_boxplot()+labs(title = "California Almond Yield Anomalies (1989-2010)", 
-       subtitle = "Sensitivity Analysis on Parameter 0.0043P^2", 
-       x = "Year", y = "Yield Anomaly (tons/acre)") 
-
-
-
-
-
+# plot results in a boxplot
+ggplot()+
+  geom_boxplot(data = sens_analysis.long,
+               aes(x=year, y=yield, group=year),
+               fill = "#FFC77D")+
+  scale_x_continuous(expand = c(0,0.5),
+                   breaks = seq(1989,2010, by = 5))+
+  labs(title = "California Almond Yield Anomalies (1989-2010)", 
+       subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
+       x = "Year", y = "Yield Anomaly (tons/acre)") +
+  theme_minimal()
 ```
 
