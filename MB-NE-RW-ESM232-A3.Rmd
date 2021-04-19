@@ -95,7 +95,7 @@ real.yield.results <- real.yield %>%
 ggplot()+
   geom_boxplot(data = real.yield.results,
                aes(x=year, y=NPV, group=year),
-               fill = "#FFC77D")+
+               fill = "#0092B9")+
   scale_x_continuous(expand = c(0,0.5),
                    breaks = seq(1989,2010, by = 5))+
   labs(title = "California Almond Yield Net Present Profits (1989-2010)", 
