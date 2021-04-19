@@ -98,9 +98,9 @@ ggplot()+
                fill = "#0092B9")+
   scale_x_continuous(expand = c(0,0.5),
                    breaks = seq(1989,2010, by = 5))+
-  labs(title = "California Almond Yield Net Present Profits (1989-2010)", 
+  labs(title = "California Almond Yield Net Present Values (1989-2010)", 
        subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
-       x = "Year", y = "NPV (dollars)") +
+       x = "Year", y = "NPV (in 1989 dollars)") +
   theme_minimal()
 ```
 
