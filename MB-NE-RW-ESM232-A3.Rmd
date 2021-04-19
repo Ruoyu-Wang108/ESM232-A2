@@ -29,7 +29,7 @@ jan_precip_sum <- clim %>%
     jan_precip_sum = sum(precip)
   )
 
-# Then find the February minimium temperature in each year.  
+# Then find the February minimum temperature in each year.  
 feb_temp_min <- clim %>% 
   filter(month == 2) %>% 
   group_by(year) %>%
