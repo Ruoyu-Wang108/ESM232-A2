@@ -14,6 +14,7 @@ library(tidyverse)
 library(purrr)
 
 source("R/almond_yield_anomaly.R")
+source("R/compute_NPV.R")
 
 ```
 
@@ -73,6 +74,33 @@ ggplot()+
   labs(title = "California Almond Yield Anomalies (1989-2010)", 
        subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
        x = "Year", y = "Yield Anomaly (tons/acre)") +
+  theme_minimal()
+```
+
+```{r}
+real.yield <- sens_analysis.long %>% 
+  mutate(real_yield_tons = yield_anom + 1, 
+         cost = 3800,
+         profit = 2.5 * 2000 * real_yield_tons) %>% 
+  mutate(net_profit = profit - cost,
+         time = year - year[1]) 
+```
+
+```{r}
+real.yield.results <- real.yield %>% 
+  mutate(NPV = compute_NPV(value = real.yield$net_profit,
+                                  time = real.yield$time))
+
+# plot results in a boxplot
+ggplot()+
+  geom_boxplot(data = real.yield.results,
+               aes(x=year, y=NPV, group=year),
+               fill = "#FFC77D")+
+  scale_x_continuous(expand = c(0,0.5),
+                   breaks = seq(1989,2010, by = 5))+
+  labs(title = "California Almond Yield Net Present Profits (1989-2010)", 
+       subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
+       x = "Year", y = "NPV (dollars)") +
   theme_minimal()
 ```
 
