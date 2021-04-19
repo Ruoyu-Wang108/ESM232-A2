@@ -22,21 +22,16 @@ source("R/almond_yield_anomaly.R")
 clim <- read.table("clim.txt")
 
 # First, find the annual January rainfall totals.
-precip <- clim %>% 
-  filter(month == 1)
-
-jan_precip_sum <- precip %>% 
+jan_precip_sum <- clim %>% 
+  filter(month == 1) %>% 
   group_by(year) %>% 
   summarize(
     jan_precip_sum = sum(precip)
   )
 
-# Then find the average Feburary minimium temperature in each year.  
-temp <- clim %>% 
-  filter(month == 2)
-
- 
-feb_temp_min <- temp %>% 
+# Then find the February minimium temperature in each year.  
+feb_temp_min <- clim %>% 
+  filter(month == 2) %>% 
   group_by(year) %>%
   summarize(
     feb_tmin = mean(tmin_c)
