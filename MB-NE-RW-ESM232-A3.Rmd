@@ -13,10 +13,14 @@ knitr::opts_chunk$set(echo = TRUE,
 library(tidyverse)
 library(purrr)
 
+# Read in the models. More information about varibles and parameters is available within the functions.
+
 source("R/almond_yield_anomaly.R")
 source("R/compute_NPV.R")
 
 ```
+
+### 1. Prepare the data
 
 ```{r clim.data}
 # read in the climate data from Assignment2
@@ -41,30 +45,31 @@ feb_temp_min <- clim %>%
 
 
 ```{r clean.data}
-# create dataset for easier use in the sensitivity analysis
+# Create dataset for easier use in the sensitivity analysis including the year, Feb. minimum temperatures & January total rainfall
 clim_clean <- inner_join(jan_precip_sum, feb_temp_min, by = "year")
 ```
 
-
+### 2. Yield Anomaly Sensitivity Analysis
 ```{r sensitivity.analysis}
-# the parameter follows the normal distribution
+
+# We're varying the 0.0043P^2 term The parameter follows a normal distribution with a mean of 0.0043, standard deviation of 0.001 and we want 500 values
 var_jan_precip_2= rnorm(mean=0.0043, sd = 0.001, n=500) 
 
-# use map_dfc to store the results in a dataframe
+# Use map_dfc to run our almond yield anomoly function and store the results in a dataframe
 sens_analysis <-  var_jan_precip_2 %>% 
   map_dfc(~almond_yield_anomaly(feb_min_t = clim_clean$feb_tmin,
                             jan_precip = clim_clean$jan_precip_sum,
                             var_jan_precip_2 = .x)) 
 
-# rename the columns for simplicity
+# Rename the columns for simplicity
 colnames(sens_analysis) = c(1:500)
 
-# change the table to the long format so that we can plot it with ggplot
+# Change the table to the long format so that we can plot it with ggplot
 sens_analysis.long <- sens_analysis %>%
   mutate(year = c(1989:2010)) %>% 
   pivot_longer(c(1:500), values_to="yield_anom")
 
-# plot results in a boxplot
+# Plot results in a boxplot
 ggplot()+
   geom_boxplot(data = sens_analysis.long,
                aes(x=year, y=yield_anom, group=year),
@@ -75,9 +80,15 @@ ggplot()+
        subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
        x = "Year", y = "Yield Anomaly (tons/acre)") +
   theme_minimal()
+
+# And save it for homework submission
+
+ggsave("AB-NE-RW-A3-Yield-Anom-Plot.png")
 ```
 
+### 3. Bring together the almond yield model and the NPV model
 ```{r}
+# Now to combine with the NPV function. First we need to add in financial information to our yield anomaly function outputs so that we have the correct information for our NPV function. This information was given in the assignment information. 
 real.yield <- sens_analysis.long %>% 
   mutate(real_yield_tons = yield_anom + 1, 
          cost = 3800,
@@ -87,11 +98,12 @@ real.yield <- sens_analysis.long %>%
 ```
 
 ```{r}
+# Run the NPV function over these parameters and add the output (net present value of net profits) as a variable
 real.yield.results <- real.yield %>% 
   mutate(NPV = compute_NPV(value = real.yield$net_profit,
                                   time = real.yield$time))
 
-# plot results in a boxplot
+# Plot results in a boxplot this time using our NPV output
 ggplot()+
   geom_boxplot(data = real.yield.results,
                aes(x=year, y=NPV, group=year),
@@ -102,5 +114,12 @@ ggplot()+
        subtitle = expression("Sensitivity Analysis on 0.0043P"^2~"term"), 
        x = "Year", y = "NPV (in 1989 dollars)") +
   theme_minimal()
+
+# And again save this plot for homework submission
+
+ggsave("AB-NE-RW-A3-NPV-Plot.png")
 ```
 
+**Citation: **
+
+Lobell, D.B., Field, C.B., Nicholas Cahill, K., Bonfils, C. (2006). Impacts of future climate change on California perennial crop yields: Model projections with climate and crop uncertainties. Agric, 141(2): 208-218.
